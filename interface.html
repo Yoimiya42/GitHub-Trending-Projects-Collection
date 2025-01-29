@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Repository Search</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .container { max-width: 800px; margin: auto; }
+        .form-group { margin-bottom: 15px; }
+        label { font-weight: bold; display: block; margin-bottom: 5px; }
+        select, input { width: 100%; padding: 8px; font-size: 16px; }
+        button { padding: 10px 20px; font-size: 16px; background-color: #007BFF; color: white; border: none; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+        canvas { margin-top: 30px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>GitHub Repository Search</h1>
+        
+        <!-- Choose languages -->
+        <div class="form-group">
+            <label for="language">Select Language:</label>
+            <select id="language">
+                <option value="ALL">ALL</option>
+                <option value="python">Python</option>
+                <option value="javascript">JavaScript</option>
+                <option value="java">Java</option>
+                <option value="c">C</option>
+                <!-- Add more languages here -->
+            </select>
+        </div>
+
+        <!-- Type in topics -->
+        <div class="form-group">
+            <label for="topic">Enter Topic:</label>
+            <input type="text" id="topic" placeholder="e.g., machine learning, web development">
+        </div>
+
+        <!--  stars count   -->
+        <div class="form-group">
+            <label for="stars">Minimum Star Count:</label>
+            <input type="number" id="stars" placeholder="e.g., 100" min="0">
+        </div>
+
+        <!-- Date range -->
+        <div class="form-group">
+            <label for="start-date">Start Date:</label>
+            <input type="date" id="start-date">
+        </div>
+        <div class="form-group">
+            <label for="end-date">End Date:</label>
+            <input type="date" id="end-date">
+        </div>
+
+        <!-- Search button -->
+        <button id="search">Search Repositories</button>
+
+        <!-- Chart -->
+        <canvas id="chart" width="400" height="200"></canvas>
+    </div>
+
+    <script>
+        document.getElementById('search').addEventListener('click', async () => {
+
+            const language = document.getElementById('language').value;
+            const topic = document.getElementById('topic').value;
+            const stars = document.getElementById('stars').value || 0;
+            const startDate = document.getElementById('start-date').value;
+            const endDate = document.getElementById('end-date').value;
+
+
+            let query = `language=${language}&topic=${encodeURIComponent(topic)}&stars>=${stars}`;
+            if (startDate) query += `&created:>${startDate}`;
+            if (endDate) query += `&created:<${endDate}`;
+
+
+            const response = await fetch(`/api/search?${query}`);
+            const data = await response.json();
+
+
+            const ctx = document.getElementById('chart').getContext('2d');
+            const chartData = {
+                labels: data.map(repo => repo.name), // 仓库名称
+                datasets: [{
+                    label: 'Stars',
+                    data: data.map(repo => repo.stars), // Star 数量
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            };
+            new Chart(ctx, {
+                type: 'bar',
+                data: chartData,
+                options: {
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+
