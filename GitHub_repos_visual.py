@@ -1,9 +1,12 @@
 import requests
 import plotly.express as px
 
+############### CHANGE THE LANGUAGE AND STARS HERE ###################
 language = "Java"
 stars = 5000
+######################################################################
 
+##################### I M P L E M E N T A T I O N ####################
 url = "https://api.github.com/search/repositories"
 url += f"?q=language:{language}+sort:stars+stars:>{stars}"
 
