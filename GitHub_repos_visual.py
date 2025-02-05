@@ -35,6 +35,8 @@ for repos_dict in repos_dicts:
     repos_hover_texts.append(repos_hover_text)
 
 
+# Visualization
+
 title = f"Most Starred {language} Projects in GitHub"
 labels = {'x' : "Repositories", 'y' : "Stars"}
 fig = px.bar(x = repos_links, y = repos_stars, title = title, labels = labels, hover_name = repos_hover_texts)

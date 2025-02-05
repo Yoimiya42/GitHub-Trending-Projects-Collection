@@ -128,6 +128,10 @@ difficulty: * *  (github API, data visualization)
 creativity: * * * (a little unnecessary, github already has most of the functions)
 usefulness: * * * * (help users find suitable repositories quickly, let users keep track of the trend of open source projects, technical industry)
   
+intended user base: 
+- programming beginners
+- people from non-computer-related industries who are interested in tech projects
+- students who want to gain experience in open source projects
 
 
 ### Idea3: Steam game recommendation system
@@ -153,11 +157,11 @@ difficulty: * * * * (scraping, data analysis)
 creativity: * * * 
 usefulness: * * * * * (help users find interesting games)
 
-### online quiz
+### Ideas4: online quiz
 
-about 10 pages
-a question with 4 options 
-give feedback after each question, and show the correct answer
-next, prev page
+about 10 pages  
+a question with 4 options   
+give feedback after each question, and show the correct answer  
+next, prev page  
 
 attach cyber security related videos, url, articles
