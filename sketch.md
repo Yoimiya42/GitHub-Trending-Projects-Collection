@@ -33,16 +33,12 @@ tool.
 ## Framework/language
 
 
-
-
-
-
 ___
 
 ### Idea1: Learning log web site
 
 - Features:
-  - `attach and store files, images, url of video website or article`
+  - `attach and store files, images, url of video website or article`  
     - find a resource but not use it immediately, and forget it later
     - visit a video platform, like YouTube, to watch educational content, they might get distracted by recommendations on the homepage.
   - `timeline of tasks`
@@ -80,7 +76,7 @@ Call the `GitHub search API`
     - trending topics -> `word cloud` 
     - `organization` with most repositories
     - `contributors` with most followers
-  - Partition zone for different user purposes
+  - Dedicated zones for various user purposes:
     - For "Beginner": 
       - repositories with detailed README.md
       - more pdf, image, video, website url in README.md
@@ -91,8 +87,9 @@ Call the `GitHub search API`
       - more issues 
       - with "guide" in README.md
       - with "tutorial" in README.md
-    -  Just exploring some interesting repositories:
-      -  most stars in past 7 days
+      - sponsored by famous organization
+    - Just exploring some interesting repositories:
+      - most stars in past 7 days
       -  high star growth in past 7 days
       -  include hot topics
       -  many contributors
