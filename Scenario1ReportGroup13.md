@@ -157,3 +157,32 @@ A well-structured storage system ensures fast data retrieval and efficient manag
   - **FastAPI** for high-performance data queries and recommendation algorithms, ensuring fast response times for complex filtering operations.
 
 ## Architecture Diagram
+```mermaid
+graph TD;
+
+    A[User Interaction - Frontend] -->|User selects filters/searches| B[Frontend sends **API requests** to Backend]
+    B --> C{Backend Processes Request}
+    C -->|Data found in Redis cache| D[Return data directly]
+    C -->|Data available in PostgreSQL| E[Query database and return results]
+    C -->|No up-to-date data available| F[Trigger **Celery** task for data fetching]
+    
+    F -->|Fetch data via GitHub API/Stack Overflow API| G[Retrieve API data]
+    F -->|If no API available, use **Scrapy/BeautifulSoup**| H[Web scraping]
+    
+    G --> I[**Pandas, NumPy** for Data Cleaning]
+    H --> I
+
+    I --> J[Store cleaned data in **PostgreSQL**]
+    J --> K[Cache frequently accessed data in **Redis**]
+
+    J --> L[Perform trend analysis]
+    L --> M[Generate statistical visualizations-Matplotlib/Seaborn]
+    
+    M --> N[Backend returns JSON/visualized data]
+    K --> N
+    D --> N
+    E --> N
+    
+    N --> O[Frontend **React.js** processes JSON and updates UI]
+    O --> P[Interactive visualizations using **Plotly.js**]
+```
