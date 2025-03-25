@@ -1,7 +1,7 @@
 import requests
 import plotly.express as px
 
-############### CHANGE THE LANGUAGE AND STARS HERE ###################
+############### CHANGE THE QUERY PARAMETERS HERE ###################
 language = "Python"
 stars = 5000
 created = "2025-01-01"
