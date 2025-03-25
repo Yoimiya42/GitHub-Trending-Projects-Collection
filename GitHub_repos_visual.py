@@ -2,13 +2,14 @@ import requests
 import plotly.express as px
 
 ############### CHANGE THE LANGUAGE AND STARS HERE ###################
-language = "Java"
+language = "Python"
 stars = 5000
+created = "2025-01-01"
 ######################################################################
 
 ##################### I M P L E M E N T A T I O N ####################
 url = "https://api.github.com/search/repositories"
-url += f"?q=language:{language}+sort:stars+stars:>{stars}"
+url += f"?q=language:{language}+sort:stars+stars:>{stars} + created:>{created}"
 
 headers = {"headers" : "application/vnd.github.v3+json"}
 r = requests.get(url, headers = headers)
@@ -34,9 +35,7 @@ for repos_dict in repos_dicts:
     repos_hover_text = f"{repos_owner}<br />{repos_description}"
     repos_hover_texts.append(repos_hover_text)
 
-
-# Visualization
-
+############################  Visualization ###########################
 title = f"Most Starred {language} Projects in GitHub"
 labels = {'x' : "Repositories", 'y' : "Stars"}
 fig = px.bar(x = repos_links, y = repos_stars, title = title, labels = labels, hover_name = repos_hover_texts)
