@@ -1,3 +1,29 @@
+"""
+To run this program, please install Flask and requests first:
+
+Command:
+`pip install flask flask-cors requests`
+
+then run the server.py file:
+`python server.py`
+
+you will see the following output:
+```
+* Serving Flask app 'server' (lazy loading)
+* Environment: development
+* Debug mode: on
+* Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+```
+open another terminal and type:
+
+`python -m http.server 8000` 
+
+and open the browser to access `http://localhost:8000/index.html`
+
+"""
+
+
+
 from flask import Flask, request, jsonify
 import requests
 from flask_cors import CORS
