@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f4f4f4; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #333; }
+        .repo-item { border-bottom: 1px solid #ddd; padding: 10px 0; }
+        .repo-item h3 { margin: 0; font-size: 18px; }
+        .repo-item a { color: #007bff; text-decoration: none; }
+        .repo-item a:hover { text-decoration: underline; }
+        .repo-item p { margin: 5px 0; color: #555; }
+        .repo-language { display: inline-block; padding: 2px 8px; background-color: #e9ecef; border-radius: 4px; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 id="title">Search Results</h1>
+        <div id="results"></div>
+    </div>
+
+    <script>
+        // Get type parameter from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const type = urlParams.get('type');
+
+        // Set title and API endpoint based on type
+        let apiEndpoint = '';
+        let pageTitle = '';
+        if (type === 'beginner') {
+            apiEndpoint = 'http://localhost:5000/api/search_beginner';
+            pageTitle = 'GitHub Repositories for Programming Beginners';
+        } else if (type === 'intermediate') {
+            apiEndpoint = 'http://localhost:5000/api/search_intermediate';
+            pageTitle = 'GitHub Projects for Intermediate Learners';
+        } else if (type === 'gaming') {
+            apiEndpoint = 'http://localhost:5000/api/search_gaming';
+            pageTitle = 'GitHub Resources for Software and Gaming Enthusiasts';
+        } else {
+            document.getElementById('results').innerHTML = '<p>Invalid user type.</p>';
+            throw new Error('Invalid type');
+        }
+
+        document.getElementById('title').textContent = pageTitle;
+
+        // Fetch repositories from backend
+        async function fetchRepositories() {
+            try {
+                const response = await fetch(apiEndpoint);
+                const repos = await response.json();
+
+                const resultsDiv = document.getElementById('results');
+                resultsDiv.innerHTML = '<h2>Search Results:</h2>';
+
+                if (repos.length === 0 || repos[0].error) {
+                    resultsDiv.innerHTML += '<p>No repositories found matching the criteria.</p>';
+                    return;
+                }
+
+                repos.forEach(repo => {
+                    const repoDiv = document.createElement('div');
+                    repoDiv.className = 'repo-item';
+                    repoDiv.innerHTML = `
+                        <h3><a href="${repo.url}" target="_blank">${repo.name}</a></h3>
+                        <p>${repo.description}</p>
+                        <p>Owner: ${repo.owner}</p>
+                        <p>Stars: ${repo.stars} | Forks: ${repo.forks}</p>
+                        <span class="repo-language">${repo.language}</span>
+                    `;
+                    resultsDiv.appendChild(repoDiv);
+                });
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('results').innerHTML = '<p>Error fetching repositories. Please try again later.</p>';
+            }
+        }
+
+        // Execute search on page load
+        fetchRepositories();
+    </script>
+</body>
+</html>

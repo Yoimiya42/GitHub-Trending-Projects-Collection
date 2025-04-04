@@ -18,7 +18,7 @@ open another terminal and type:
 
 `python -m http.server 8000` 
 
-and open the browser to access `http://localhost:8000/index.html`
+and open the browser to access `http://localhost:8001/index.html`
 
 """
 
@@ -31,15 +31,21 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 
+####################### C O N S T A N T #######################
+RESULTS = 20
+
+####################### IMPLEMENTATION ########################
+
 @app.route('/api/search', methods=['GET'])
+# Get the search parameters from the frontend
 def search_repositories():
     language = request.args.get('language', 'ALL')
     topic = request.args.get('topic', '')
     stars = request.args.get('stars', '0')
     forks = request.args.get('forks', '0')
     org = request.args.get('org', '')
-    start_date = request.args.get('created:>', '')
-    end_date = request.args.get('created:<', '')
+    start_date = request.args.get('start_date', '')  
+    end_date = request.args.get('end_date', '')     
 
     query = []
     if language != 'ALL':
@@ -57,12 +63,14 @@ def search_repositories():
     if end_date:
         query.append(f"created:<{end_date}")
 
+    # Dynamically build the query string
     url = "https://api.github.com/search/repositories"
     url += f"?q={' '.join(query)}&sort=stars&order=desc"
     print(f"GitHub API URL: {url}")
 
     headers = {"Accept": "application/vnd.github.v3+json"}
     try:
+        # Make the request to the GitHub API
         r = requests.get(url, headers=headers)
         r.raise_for_status()
         response_dict = r.json()
@@ -71,21 +79,23 @@ def search_repositories():
         min_stars = int(stars) if stars else 0
         min_forks = int(forks) if forks else 0
         
-        for item in response_dict.get('items', [])[:10]:
+        for item in response_dict.get('items', [])[:RESULTS]:
             stars_count = item['stargazers_count']
             forks_count = item['forks_count']
             
             if stars_count <= min_stars or forks_count <= min_forks:
                 print(f"Skipping {item['name']}: stars={stars_count}, forks={forks_count}")
                 continue
-                
+            
+            # Construct the repository information
             repo = {
                 'name': item['name'],
                 'stars': stars_count,
                 'forks': forks_count,
                 'url': item['html_url'],
                 'description': item['description'] or 'No description',
-                'owner': item['owner']['login']
+                'owner': item['owner']['login'],
+                'language': item['language'] or 'Unknown'
             }
             repos.append(repo)
         

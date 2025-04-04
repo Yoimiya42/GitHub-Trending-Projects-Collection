@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Repository Search</title>
+    <link rel="stylesheet" href="index_css.css">
+</head>
+<body>
+    <div class="sidebar">
+        <h2>Navigation</h2>
+        <a href="#">Homepage</a>
+        <a href="#">Dashboard</a>
+        <a href="#">Customization</a>
+        <a href="#">Favorites</a>
+    </div>
+    
+    <div class="container">
+        <h1><b>TechLens</b> - Composite Search</h1>
+        <div class="form-group">
+            <label for="language">Select Language:</label>
+            <select id="language">
+                <option value="ALL">ALL</option>
+                <option value="python">Python</option>
+                <option value="javascript">JavaScript</option>
+                <option value="java">Java</option>
+                <option value="c">C</option>
+                <option value="cpp">C++</option>
+                <option value="csharp">C#</option>
+                <option value="ruby">Ruby</option>
+                <option value="php">PHP</option>
+                <option value="go">Go</option>
+                <option value="swift">Swift</option>
+                <option value="typescript">TypeScript</option>
+                <option value="shell">Shell</option>
+                <option value="rust">Rust</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="topic">Enter Topic:</label>
+            <input type="text" id="topic" placeholder="e.g., machine learning, web development">
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="stars">Minimum Star Count:</label>
+                <input type="number" id="stars" placeholder="e.g., 100" min="0">
+            </div>
+            <div class="form-group">
+                <label for="forks">Minimum Fork Count (Optional):</label>
+                <input type="number" id="forks" placeholder="e.g., 50" min="0">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="star-options">
+                <button class="star-option" data-value="100000">>100k</button>
+                <button class="star-option" data-value="50000">>50k</button>
+                <button class="star-option" data-value="10000">>10k</button>
+                <button class="star-option" data-value="5000">>5k</button>
+                <button class="star-option" data-value="1000">>1k</button>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="organization">Organization (Optional):</label>
+            <input type="text" id="organization" placeholder="e.g., microsoft, google">
+        </div>
+        <div class="form-group">
+            <div class="org-options">
+                <button class="org-option" data-value="google">Google</button>
+                <button class="org-option" data-value="microsoft">Microsoft</button>
+                <button class="org-option" data-value="alibaba">Alibaba</button>
+                <button class="org-option" data-value="nvidia">NVIDIA</button>
+                <button class="org-option" data-value="facebook">Meta</button>
+                <button class="org-option" data-value="apache">Apache</button>
+                <button class="org-option" data-value="tensorflow">TensorFlow</button>
+                <button class="org-option" data-value="aws">AWS</button>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="start-date">Created After:</label>
+                <input type="date" id="start-date">
+            </div>
+            <div class="form-group">
+                <label for="end-date">Created Before:</label>
+                <input type="date" id="end-date">
+            </div>
+        </div>
+        <button id="search">Search Repositories</button>
+        <button id="show-graph">Show in Graph</button>
+        <button id="clear">Clear</button>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        let currentRepos = [];  // Store the current search results
+
+        // Handle star preset options
+        const starOptions = document.querySelectorAll('.star-option');
+        const starsInput = document.getElementById('stars');
+        starOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                starOptions.forEach(opt => opt.classList.remove('active'));
+                option.classList.add('active');
+                starsInput.value = option.getAttribute('data-value');
+            });
+        });
+
+        // Handle organization preset options
+        const orgOptions = document.querySelectorAll('.org-option');
+        const orgInput = document.getElementById('organization');
+        orgOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                orgOptions.forEach(opt => opt.classList.remove('active'));
+                option.classList.add('active');
+                orgInput.value = option.getAttribute('data-value');
+            });
+        });
+
+        document.getElementById('search').addEventListener('click', async () => {
+            const language = document.getElementById('language').value;
+            const topic = document.getElementById('topic').value;
+            const stars = document.getElementById('stars').value || 0;
+            const forks = document.getElementById('forks').value || 0;
+            const organization = document.getElementById('organization').value;
+            const startDate = document.getElementById('start-date').value;
+            const endDate = document.getElementById('end-date').value;
+
+            let query = `language=${language}&topic=${encodeURIComponent(topic)}&stars=${stars}&forks=${forks}`;
+            if (organization) query += `&org=${encodeURIComponent(organization)}`;
+            if (startDate) query += `&start_date=${startDate}`; 
+            if (endDate) query += `&end_date=${endDate}`;
+
+            try {
+                const response = await fetch(`http://localhost:5000/api/search?${query}`);
+                const repos = await response.json();
+                currentRepos = repos;  // Store the current search results
+                
+                const resultsDiv = document.getElementById('results');
+                resultsDiv.innerHTML = '<h2>Search Results:</h2>';
+                
+                if (repos.length === 0) {
+                    resultsDiv.innerHTML += '<p>No repositories found matching your criteria.</p>';
+                    return;
+                }
+
+                repos.forEach(repo => {
+                    const repoDiv = document.createElement('div');
+                    repoDiv.className = 'repo-item';
+                    repoDiv.innerHTML = `
+                        <h3><a href="${repo.url}" target="_blank">${repo.name}</a></h3>
+                        <p>${repo.description}</p>
+                        <p>Owner: ${repo.owner}</p>
+                        <p>Stars: ${repo.stars} | Forks: ${repo.forks}</p>
+                        <span class="repo-language">${repo.language}</span>
+                    `;
+                    resultsDiv.appendChild(repoDiv);
+                });
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('results').innerHTML = '<p>Error fetching repositories. Please try again.</p>';
+            }
+        });
+
+        document.getElementById('show-graph').addEventListener('click', () => {
+            if (currentRepos.length === 0) {
+                alert('Please search for repositories first!');
+                return;
+            }
+
+            // Prepare the query string
+            const language = document.getElementById('language').value;
+            const topic = document.getElementById('topic').value;
+            const stars = document.getElementById('stars').value || 0;
+            const forks = document.getElementById('forks').value || 0;
+            const organization = document.getElementById('organization').value;
+            const startDate = document.getElementById('start-date').value;
+            const endDate = document.getElementById('end-date').value;
+
+            const reposData = encodeURIComponent(JSON.stringify(currentRepos));
+            let query = `repos=${reposData}&language=${language}`;
+            if (topic) query += `&topic=${encodeURIComponent(topic)}`;
+            if (stars) query += `&stars=${stars}`;
+            if (forks) query += `&forks=${forks}`;
+            if (organization) query += `&org=${encodeURIComponent(organization)}`;
+            if (startDate) query += `&start_date=${startDate}`;
+            if (endDate) query += `&end_date=${endDate}`;
+
+            window.open(`graph.html?${query}`, '_blank');
+        });
+
+        document.getElementById('clear').addEventListener('click', () => {
+            document.getElementById('language').value = 'ALL';
+            document.getElementById('topic').value = '';
+            document.getElementById('stars').value = '';
+            document.getElementById('forks').value = '';
+            document.getElementById('organization').value = '';
+            document.getElementById('start-date').value = '';
+            document.getElementById('end-date').value = '';
+            document.getElementById('results').innerHTML = '';
+            starOptions.forEach(opt => opt.classList.remove('active'));
+            orgOptions.forEach(opt => opt.classList.remove('active'));
+            currentRepos = [];
+        });
+    </script>
+</body>
+</html>

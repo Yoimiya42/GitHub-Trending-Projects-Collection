@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Repository Bar Chart</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #FDFEFE;
+        }
+        #graph {
+            width: 100%;
+            height: 800px; 
+        }
+        .search-options {
+            margin-bottom: 30px;
+            font-size: 24px; 
+            font-weight: bold; 
+            color: #2C3E50; 
+            background-color: #ECF0F1; 
+            padding: 15px; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); 
+        }
+    </style>
+</head>
+<body>
+    <div id="search-options" class="search-options"></div>
+    <div id="graph"></div>
+
+    <script>
+        // Get URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const reposData = decodeURIComponent(urlParams.get('repos'));
+        const language = urlParams.get('language') || 'ALL';
+        const repos = JSON.parse(reposData);
+
+        // Show search options
+        const searchOptionsDiv = document.getElementById('search-options');
+        const stars = urlParams.get('stars') || '0';
+        const forks = urlParams.get('forks') || '0';
+        const topic = urlParams.get('topic') || '';
+        const org = urlParams.get('org') || '';
+        const startDate = urlParams.get('start_date') || '';
+        const endDate = urlParams.get('end_date') || '';
+        
+        let optionsText = `Search Options: Language=${language}`;
+        if (topic) optionsText += `, Topic=${topic}`;
+        if (stars) optionsText += `, Min Stars=${stars}`;
+        if (forks) optionsText += `, Min Forks=${forks}`;
+        if (org) optionsText += `, Organization=${org}`;
+        if (startDate) optionsText += `, Created After=${startDate}`;
+        if (endDate) optionsText += `, Created Before=${endDate}`;
+        searchOptionsDiv.textContent = optionsText;
+
+        // Render the bar chart
+        const reposLinks = repos.map(repo => `<a href="${repo.url}" target="_blank">${repo.name}</a>`);
+        const reposStars = repos.map(repo => repo.stars);
+        const reposLanguages = repos.map(repo => repo.language || 'Unknown'); 
+        const reposHoverTexts = repos.map(repo => `<b>${repo.name}</b><br />Owner: ${repo.owner}<br />${repo.description}`);
+
+        const data = [{
+            x: reposLinks,
+            y: reposStars,
+            type: 'bar',
+            text: reposLanguages, 
+            textposition: 'top', 
+            textfont: {
+                size: 12,
+                color: '#333',
+                family: 'Arial'
+            },
+            hovertext: reposHoverTexts,
+            hoverlabel: {
+                font: { size: 14, family: 'Courier New' },
+                bgcolor: '#D5DBDB',
+                bordercolor: '#34495E'
+            },
+            marker: {
+                color: reposStars.map(star => star > 10000 ? '#3498DB' : '#9B59B6'),
+                opacity: 0.85,
+                line: { width: 1, color: '#1C2833' }
+            }
+        }];
+
+        const layout = {
+            title: {
+                text: '', 
+            },
+            xaxis: {
+                title: { text: 'Repositories', font: { size: 18, family: 'Verdana', color: '#34495E' } },
+                tickfont: { size: 14, family: 'Tahoma', color: '#7F8C8D' },
+                tickangle: 45,
+                automargin: true
+            },
+            yaxis: {
+                title: { text: 'Stars', font: { size: 18, family: 'Verdana', color: '#34495E' } },
+                tickfont: { size: 14, family: 'Tahoma', color: '#7F8C8D' }
+            },
+            paper_bgcolor: '#FDFEFE',
+            plot_bgcolor: '#ECF0F1',
+            margin: { l: 50, r: 50, t: 50, b: 150 }, 
+            height: 800
+        };
+
+
+        Plotly.newPlot('graph', data, layout);
+    </script>
+</body>
+</html>
